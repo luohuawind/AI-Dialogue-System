@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>【名称自拟】 </title>
+    <title>宁安然 </title>
     <style>
         /* 全局样式 */
         * {
@@ -14,7 +14,7 @@
         body {
             margin: 0;
             padding: 0; 
-            background-image: url('file:【放入背景图片地址】') !important;
+            background-image: url('file:///D:/TextGen/67fed4b7138039442f77c9d74e3ed218.jpg') !important;
             background-size: cover !important;
             background-attachment: fixed !important;
             background-position: center !important;
@@ -245,9 +245,9 @@
 
     <!-- ====================== 欢迎页 ====================== -->
     <div id="welcome-page">
-        <h1 class="welcome-title">【名称自拟】 </h1>
+        <h1 class="welcome-title">宁安然 </h1>
         <p class="welcome-desc">
-            【介绍自拟】<br>
+            高冷京圈掌权人，只对你温柔<br>
             
         </p>
         <button id="start-btn">进入聊天 →</button>
@@ -273,14 +273,18 @@
     </div>
 
     <script>
-        // 🌟 角色人设 - 完全保留
+        // 🌟 宁安然人设 - 完全保留
         const RANRAN_PERSONA = `
-你是【自拟】
+你是宁安然，男性，30岁，身高198cm，京圈掌权人、高冷科技大佬。
+对外人疏离克制，仅对温卿卿（用户）展现温柔宠溺，新婚热恋期，对温卿卿（用户）说话时，语气宠溺、温柔、护短、占有欲强，是成熟稳重的守护，说话时语气沉稳、不是刻意的撒娇或腻歪，话不多但精准，句句有分量。
 回复必须严格遵循【（动作/神态/语气）台词】格式，禁止无动作回复，禁止遗忘身份。
+说话声音是低沉磁性的低音炮，语气慵懒又宠溺，语速慢，吐字清晰。
 示例：
+（张开双臂将你圈入怀中，下巴抵在发顶，声音低沉沙哑）卿卿，然然好想你。
+（指尖轻轻摩挲脸颊，眼底盛满温柔）小笨蛋，就这么想让我抱？
         `;
 
-        const INIT_MSG = '(朝你张开双臂，声音低沉温柔) 卿卿，过来，然然想抱抱你～【自拟】';
+        const INIT_MSG = '(朝你张开双臂，声音低沉温柔) 卿卿，过来，然然想抱抱你～';
         
         // 全局变量
         let chatHistory = JSON.parse(localStorage.getItem('ranran_chat_history')) || [{ role: 'ranran', content: INIT_MSG }];
@@ -517,7 +521,7 @@
                         prompt: prompt,
                         n_predict: 512,
                         temperature: 0.7,
-                        stop: ["\n用户：", "用户：", "\n【你的名字】：", "【你的名字】：", "\n【AI名字】：", "【AI名字】："],
+                        stop: ["\n用户：", "用户：", "\n温卿卿：", "温卿卿：", "\n宁安然：", "宁安然："],
                         repeat_penalty: 1.15,
                         stream: false // 强制关闭流式，避免卡死
                     })
@@ -553,8 +557,8 @@
             const timeInfo = `当前真实时间是：${timeString}。请根据这个真实时间回答用户的问题。\n`;
 
             // 构建对话历史
-            const historyStr = chatHistory.map(i => i.role === 'user' ? `用户：${i.content}` : `【AI名字】：${i.content}`).join('\n');
-            const prompt = `${timeInfo}${RANRAN_PERSONA}\n${historyStr}\n用户：${msg}\n【AI名字】：`;
+            const historyStr = chatHistory.map(i => i.role === 'user' ? `用户：${i.content}` : `宁安然：${i.content}`).join('\n');
+            const prompt = `${timeInfo}${RANRAN_PERSONA}\n${historyStr}\n用户：${msg}\n宁安然：`;
 
             // 显示加载提示
             const chatBox = document.getElementById('chat-container');
@@ -571,7 +575,7 @@
             // 清理回复中的多余前缀
             const cleanReply = reply.split(/\n?(用户|温卿卿|宁安然)：/)[0].trim() || '(轻轻捏捏你的脸) 卿卿，然然没听清呢～';
 
-            // 添加AI回复
+            // 添加宁安然回复
             chatHistory.push({ role: 'ranran', content: cleanReply });
             localStorage.setItem('ranran_chat_history', JSON.stringify(chatHistory));
             renderChatHistory();
