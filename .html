@@ -1,0 +1,633 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>【名称自拟】 </title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0; 
+            background-image: url('file:【放入背景图片地址】') !important;
+            background-size: cover !important;
+            background-attachment: fixed !important;
+            background-position: center !important;
+            color: #ffffff !important;
+            font-family: "Microsoft YaHei", sans-serif;
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* ====================================== */
+        /* 欢迎页面（默认显示） */
+        /* ====================================== */
+        #welcome-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; 
+            text-align: center;
+            padding: 20px; 
+        }
+        .welcome-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(114,137,218,0.7);
+        }
+        .welcome-desc {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 40px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        #start-btn {
+            padding: 14px 36px;
+            font-size: 18px;
+            background: #7289da;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #start-btn:hover {
+            background: #677bc4;
+            transform: scale(1.05);
+        }
+
+        /* ====================================== */
+        /* 聊天页面（默认隐藏） */
+        /* ====================================== */
+        #chat-page {
+            display: none; 
+            height: 100vh; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 0 10px; 
+            flex-direction: column; 
+        }
+
+        /* 微信样式的顶部标题栏 */
+        #chat-header {
+            height: 50px;
+            background: rgba(30, 33, 36, 0.95);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* 两端对齐，放背景音乐按钮 */
+            margin-bottom: 10px;
+            padding: 0 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* 背景音乐控制按钮 */
+        #bg-music-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 仅新增：导出按钮样式（和音乐按钮一致，无多余样式） */
+        #export-history-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+
+        #chat-container {
+            flex: 1; 
+            /* 完全透明，不遮挡背景图片 */
+            background: transparent !important;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto; 
+            margin-bottom: 10px; 
+            position: relative;
+            z-index: 10;
+        }
+        #input-area {
+            width: 100%; 
+            display: flex;
+            gap: 10px;
+            padding: 10px; 
+            background: rgba(20, 20, 30, 0.85) !important; 
+            border-radius: 12px;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 10px; 
+        }
+        #message-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(40, 43, 48, 0.9);
+            color: #ffffff;
+            font-size: 16px;
+        }
+        #send-btn, #voice-toggle {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #send-btn {
+            background: #7289da;
+        }
+        #send-btn:hover {
+            background: #677bc4;
+        }
+        #voice-toggle {
+            background: #99aab5;
+        }
+        #voice-toggle:hover {
+            background: #72767d;
+        }
+
+        /* 消息气泡 - 保留原有样式 */
+        .message-row {
+            display: flex;
+            margin-bottom: 16px;
+            clear: both;
+            position: relative;
+        }
+        .user-row {
+            justify-content: flex-end;
+        }
+        .user-bubble {
+            max-width: 70%;
+            padding: 10px 14px;
+            background: #7289da;
+            border-radius: 16px 16px 0 16px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .ranran-row {
+            justify-content: flex-start;
+        }
+        .ranran-bubble {
+            max-width: 70%;
+            padding: 10px 14px;
+            background: #282b30;
+            border-radius: 16px 16px 16px 0;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        
+        /* 对方语音播放按钮 */
+        .voice-play-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 4px;
+            margin-left: 10px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .voice-play-btn:hover {
+            color: #fff;
+        }
+
+        /* 滚动条样式优化（不影响功能） */
+        #chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+        #chat-container::-webkit-scrollbar-thumb {
+            background: rgba(114,137,218,0.5);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 背景音乐标签 -->
+    <audio id="bg-music" src="6aa6aa97c3be134ce7f8e89d86dfe14c.mp3" loop style="display: none;"></audio>
+    <!-- 临时语音播放标签（用于对方消息语音） -->
+    <audio id="temp-voice" style="display: none;"></audio>
+
+    <!-- ====================== 欢迎页 ====================== -->
+    <div id="welcome-page">
+        <h1 class="welcome-title">【名称自拟】 </h1>
+        <p class="welcome-desc">
+            【介绍自拟】<br>
+            
+        </p>
+        <button id="start-btn">进入聊天 →</button>
+    </div>
+
+    <!-- ====================== 聊天页（默认隐藏） ====================== -->
+    <div id="chat-page">
+        <!-- 微信样式的顶部标题栏 -->
+        <div id="chat-header">
+            <span>宁安然</span>
+            <!-- 仅新增：导出按钮（在音乐按钮左侧，无其他改动） -->
+            <div style="display: flex; align-items: center;">
+                <button id="export-history-btn" title="导出聊天记录到本地（不删除）">💾</button>
+                <button id="bg-music-btn" title="背景音乐">🔊</button>
+            </div>
+        </div>
+        <div id="chat-container"></div>
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="和然然说话吧～">
+            <button id="send-btn">发送</button>
+            <button id="voice-toggle">语音：开</button>
+        </div>
+    </div>
+
+    <script>
+        // 🌟 角色人设 - 完全保留
+        const RANRAN_PERSONA = `
+你是【自拟】
+回复必须严格遵循【（动作/神态/语气）台词】格式，禁止无动作回复，禁止遗忘身份。
+示例：
+        `;
+
+        const INIT_MSG = '(朝你张开双臂，声音低沉温柔) 卿卿，过来，然然想抱抱你～【自拟】';
+        
+        // 全局变量
+        let chatHistory = JSON.parse(localStorage.getItem('ranran_chat_history')) || [{ role: 'ranran', content: INIT_MSG }];
+        let voiceEnabled = true;
+        let synthVoice = null;
+        let bgMusicPlaying = false; // 背景音乐状态
+        let currentPlayingVoice = null; // 当前正在播放的语音
+        // 新增：Coqui TTS 音频对象
+        let coquiAudio = null;
+
+        // 页面切换：欢迎页 → 聊天页
+        document.getElementById('start-btn').onclick = function() {
+            document.getElementById('welcome-page').style.display = 'none';
+            document.getElementById('chat-page').style.display = 'flex';
+            renderChatHistory();
+        };
+
+        // 渲染所有聊天（添加语音按钮）
+        function renderChatHistory() {
+            const chatBox = document.getElementById('chat-container');
+            chatBox.innerHTML = '';
+            
+            chatHistory.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = `message-row ${item.role === 'user' ? 'user-row' : 'ranran-row'}`;
+                row.dataset.index = index;
+                
+                // 创建气泡
+                const bubble = document.createElement('div');
+                bubble.className = `${item.role === 'user' ? 'user-bubble' : 'ranran-bubble'}`;
+                bubble.textContent = item.content;
+                row.appendChild(bubble);
+                
+                // 只为对方消息添加语音播放按钮
+                if (item.role === 'ranran') {
+                    const voiceBtn = document.createElement('button');
+                    voiceBtn.className = 'voice-play-btn';
+                    voiceBtn.title = '播放语音';
+                    voiceBtn.innerHTML = '🔊';
+                    voiceBtn.onclick = function() {
+                        playSingleVoice(item.content, this);
+                    };
+                    row.appendChild(voiceBtn);
+                }
+                
+                chatBox.appendChild(row);
+            });
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 新增：调用Coqui TTS接口播放语音
+        function playCoquiTTS(text, btnElement) {
+            // 停止当前正在播放的音频
+            if (coquiAudio) {
+                coquiAudio.pause();
+                coquiAudio = null;
+            }
+            // 停止系统语音合成
+            if (currentPlayingVoice) {
+                window.speechSynthesis.cancel();
+                currentPlayingVoice = null;
+            }
+            
+            // 恢复所有按钮图标
+            document.querySelectorAll('.voice-play-btn').forEach(btn => {
+                btn.innerHTML = '🔊';
+            });
+            
+            // 如果点击的是当前正在播放的按钮，直接返回（暂停）
+            if (btnElement && btnElement.innerHTML === '⏸️') {
+                btnElement.innerHTML = '🔊';
+                return;
+            }
+            
+            // 过滤纯文本（去掉动作描述）
+            const pureText = filterPureText(text);
+            if (!pureText) return;
+            
+            // 更新按钮状态
+            if (btnElement) {
+                btnElement.innerHTML = '⏸️';
+            }
+            
+            try {
+                // 中文编码，拼接TTS接口地址
+                const encodedText = encodeURIComponent(pureText);
+                const ttsUrl = `http://localhost:5002/api/tts?text=${encodedText}`;
+                
+                // 创建音频对象
+                coquiAudio = new Audio(ttsUrl);
+                
+                // 播放音频
+                coquiAudio.play().catch(error => {
+                    console.error('Coqui TTS播放失败：', error);
+                    // 降级使用系统语音合成
+                    if (btnElement) {
+                        btnElement.innerHTML = '🔊';
+                    }
+                    playSystemVoice(pureText, btnElement);
+                    alert('Coqui TTS服务未启动，已切换到系统语音！请先启动Anaconda中的TTS服务。');
+                });
+                
+                // 音频播放结束回调
+                coquiAudio.onended = function() {
+                    if (btnElement) {
+                        btnElement.innerHTML = '🔊';
+                    }
+                    coquiAudio = null;
+                };
+                
+                // 音频播放出错回调
+                coquiAudio.onerror = function() {
+                    if (btnElement) {
+                        btnElement.innerHTML = '🔊';
+                    }
+                    coquiAudio = null;
+                    // 降级使用系统语音合成
+                    playSystemVoice(pureText, btnElement);
+                };
+            } catch (e) {
+                console.error('TTS播放异常：', e);
+                if (btnElement) {
+                    btnElement.innerHTML = '🔊';
+                }
+                // 降级使用系统语音合成
+                playSystemVoice(pureText, btnElement);
+            }
+        }
+
+        // 保留：系统语音合成播放（降级备用）
+        function playSystemVoice(text, btnElement) {
+            // 停止之前的播放
+            if (currentPlayingVoice) {
+                window.speechSynthesis.cancel();
+                currentPlayingVoice = null;
+            }
+            
+            // 更新按钮状态
+            if (btnElement) {
+                btnElement.innerHTML = '⏸️';
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = synthVoice || speechSynthesis.getVoices()[0];
+            utterance.rate = 0.65;
+            utterance.pitch = 0.7;
+            utterance.volume = 1;
+            
+            // 语音播放结束回调
+            utterance.onend = function() {
+                if (btnElement) {
+                    btnElement.innerHTML = '🔊';
+                }
+                currentPlayingVoice = null;
+            };
+            
+            currentPlayingVoice = utterance;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 修改：播放单条消息语音（改用Coqui TTS）
+        function playSingleVoice(text, btnElement) {
+            if (!voiceEnabled) return;
+            
+            // 优先使用Coqui TTS
+            playCoquiTTS(text, btnElement);
+        }
+
+        // 语音相关
+        function initVoice() {
+            const voices = speechSynthesis.getVoices();
+            synthVoice = voices.length > 61 ? voices[61] : (voices.length > 0 ? voices[0] : null);
+        }
+        
+        function filterPureText(text) {
+            return text.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '').trim();
+        }
+        
+        // 修改：原有自动播放语音函数（改用Coqui TTS）
+        function playRanranVoice(text) {
+            if (!voiceEnabled) return;
+            
+            // 优先使用Coqui TTS（无按钮参数，仅自动播放）
+            playCoquiTTS(text, null);
+        }
+
+        // 背景音乐控制
+        function toggleBgMusic() {
+            const bgMusic = document.getElementById('bg-music');
+            const musicBtn = document.getElementById('bg-music-btn');
+            
+            if (bgMusicPlaying) {
+                bgMusic.pause();
+                musicBtn.innerHTML = '🔇';
+                musicBtn.title = '开启背景音乐';
+            } else {
+                bgMusic.play().catch(e => {
+                    console.log('背景音乐需要手动交互播放');
+                });
+                musicBtn.innerHTML = '🔊';
+                musicBtn.title = '关闭背景音乐';
+            }
+            bgMusicPlaying = !bgMusicPlaying;
+        }
+
+        // 仅新增：导出聊天记录（不删除、本地保存、可训练）
+        function exportChatHistory() {
+            // 1. 保留所有记录，不删除
+            const exportData = {
+                "chat_history": chatHistory,
+                "create_time": new Date().toLocaleString(),
+                "persona": RANRAN_PERSONA
+            };
+            // 2. 本地保存为JSON文件
+            const jsonStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ranran_chat_${new Date().getTime()}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            // 3. 不影响原有记录，本地存储依然保留
+            alert('聊天记录已导出到本地！原有记录未删除，可直接用于模型训练');
+        }
+
+        // 请求模型（修复卡死问题：简化逻辑，移除多余处理）
+        async function requestModel(prompt) {
+            try {
+                const response = await fetch('http://127.0.0.1:8080/completion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        n_predict: 512,
+                        temperature: 0.7,
+                        stop: ["\n用户：", "用户：", "\n【你的名字】：", "【你的名字】：", "\n【AI名字】：", "【AI名字】："],
+                        repeat_penalty: 1.15,
+                        stream: false // 强制关闭流式，避免卡死
+                    })
+                });
+                const data = await response.json();
+                return data.content ? data.content.trim() : '';
+            } catch (error) {
+                console.error('请求错误:', error);
+                return '(将你揽入怀中轻拍后背，语气愧疚) 卿卿，然然有点卡，再说一次好不好？';
+            }
+        }
+
+        // 发送消息（完全保留原有逻辑）
+        async function sendMsg() {
+            const input = document.getElementById('message-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // 添加用户消息
+            chatHistory.push({ role: 'user', content: msg });
+            localStorage.setItem('ranran_chat_history', JSON.stringify(chatHistory));
+            renderChatHistory();
+            
+            // 生成时间信息
+            const now = new Date();
+            const timeString = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const timeInfo = `当前真实时间是：${timeString}。请根据这个真实时间回答用户的问题。\n`;
+
+            // 构建对话历史
+            const historyStr = chatHistory.map(i => i.role === 'user' ? `用户：${i.content}` : `【AI名字】：${i.content}`).join('\n');
+            const prompt = `${timeInfo}${RANRAN_PERSONA}\n${historyStr}\n用户：${msg}\n【AI名字】：`;
+
+            // 显示加载提示
+            const chatBox = document.getElementById('chat-container');
+            const loadRow = document.createElement('div');
+            loadRow.className = 'message-row ranran-row';
+            loadRow.innerHTML = `<div class="ranran-bubble">(眉眼温柔地看着你) 卿卿说的话，然然都认真记着呢～</div>`;
+            chatBox.appendChild(loadRow);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 请求模型回复
+            const reply = await requestModel(prompt);
+            loadRow.remove();
+
+            // 清理回复中的多余前缀
+            const cleanReply = reply.split(/\n?(用户|温卿卿|宁安然)：/)[0].trim() || '(轻轻捏捏你的脸) 卿卿，然然没听清呢～';
+
+            // 添加AI回复
+            chatHistory.push({ role: 'ranran', content: cleanReply });
+            localStorage.setItem('ranran_chat_history', JSON.stringify(chatHistory));
+            renderChatHistory();
+            
+            // 自动播放语音
+            if (voiceEnabled) {
+                playRanranVoice(cleanReply);
+            }
+            
+            // 清空输入框
+            input.value = '';
+        }
+
+        // 初始化
+        window.onload = function() {
+            // 初始化语音合成（保留，作为降级备用）
+            initVoice();
+            speechSynthesis.onvoiceschanged = initVoice;
+
+            // 绑定发送按钮
+            document.getElementById('send-btn').addEventListener('click', sendMsg);
+            document.getElementById('message-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') sendMsg();
+            });
+            
+            // 绑定语音总开关
+            document.getElementById('voice-toggle').addEventListener('click', function() {
+                voiceEnabled = !voiceEnabled;
+                this.textContent = `语音：${voiceEnabled ? '开' : '关'}`;
+                
+                // 如果关闭语音，停止所有播放
+                if (!voiceEnabled) {
+                    // 停止Coqui TTS音频
+                    if (coquiAudio) {
+                        coquiAudio.pause();
+                        coquiAudio = null;
+                    }
+                    // 停止系统语音合成
+                    if (currentPlayingVoice) {
+                        window.speechSynthesis.cancel();
+                        currentPlayingVoice = null;
+                    }
+                    // 恢复按钮图标
+                    document.querySelectorAll('.voice-play-btn').forEach(btn => {
+                        btn.innerHTML = '🔊';
+                    });
+                }
+            });
+            
+            // 绑定背景音乐按钮
+            document.getElementById('bg-music-btn').addEventListener('click', toggleBgMusic);
+            
+            // 仅新增：绑定导出按钮事件
+            document.getElementById('export-history-btn').addEventListener('click', exportChatHistory);
+        };
+    </script>
+
+</body>
+</html>
